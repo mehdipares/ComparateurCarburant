@@ -19,3 +19,21 @@ export function getVisibleStations(stations, { fuel, sortBy, userPosition }) {
     return a.prices[fuel] - b.prices[fuel]
   })
 }
+
+// Classe un prix par rapport aux autres : 'cheapest', 'cheap', 'average' ou 'expensive'.
+// On découpe l'écart entre le prix minimum et le prix maximum en trois tiers.
+export function getPriceTier(price, minPrice, maxPrice) {
+  if (price === minPrice) return 'cheapest'
+
+  const ratio = (price - minPrice) / (maxPrice - minPrice)
+  if (ratio <= 1 / 3) return 'cheap'
+  if (ratio >= 2 / 3) return 'expensive'
+  return 'average'
+}
+
+// Point central d'une liste de stations (moyenne des coordonnées)
+export function getCenter(stations) {
+  const latitude = stations.reduce((sum, station) => sum + station.latitude, 0) / stations.length
+  const longitude = stations.reduce((sum, station) => sum + station.longitude, 0) / stations.length
+  return { latitude, longitude }
+}

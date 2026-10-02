@@ -44,18 +44,22 @@ function buildLocationFilter(query) {
   return `ville like "${value}"` // Nom de ville (insensible à la casse et aux accents)
 }
 
-async function fetchStations(where, orderBy) {
+// Options : `orderBy` (tri côté serveur), `limit` (nombre de résultats),
+// `signal` (pour pouvoir annuler la requête depuis l'extérieur)
+async function fetchStations(where, { orderBy, limit = MAX_RESULTS, signal } = {}) {
   const params = new URLSearchParams({
     where,
     select: FIELDS.join(','),
-    limit: MAX_RESULTS,
+    limit,
   })
   if (orderBy) {
     params.set('order_by', orderBy)
   }
 
+  // La requête s'arrête si elle dépasse le délai OU si l'appelant l'annule
+  const timeoutSignal = AbortSignal.timeout(TIMEOUT_MS)
   const response = await fetch(`${API_URL}?${params}`, {
-    signal: AbortSignal.timeout(TIMEOUT_MS),
+    signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
   })
 
   // fetch ne lève pas d'erreur sur un code HTTP 4xx/5xx : on le vérifie nous-mêmes
@@ -71,7 +75,7 @@ async function fetchStations(where, orderBy) {
 function normalizeCityName(name) {
   return name
     .normalize('NFD') // Sépare les lettres de leurs accents : "é" → "e" + "´"
-    .replace(/[̀-ͯ]/g, '') // Supprime les accents
+    .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
     .replace(/[-']/g, ' ')
     .toLowerCase()
     .trim()
@@ -92,5 +96,18 @@ export async function searchStationsByLocation(query) {
 // Attention : l'API attend la longitude AVANT la latitude.
 export function searchStationsAround({ latitude, longitude }, radiusKm) {
   const point = `geom'POINT(${longitude} ${latitude})'`
-  return fetchStations(`within_distance(geom, ${point}, ${radiusKm}km)`, `distance(geom, ${point})`)
+  return fetchStations(`within_distance(geom, ${point}, ${radiusKm}km)`, {
+    orderBy: `distance(geom, ${point})`,
+  })
+}
+
+// Les stations les moins chères pour un carburant dans un rayon (même au-delà des
+// stations déjà chargées). Tri côté serveur : prix croissant, puis distance.
+export function searchCheapestAround({ latitude, longitude }, radiusKm, fuel, { limit = 20, signal } = {}) {
+  const point = `geom'POINT(${longitude} ${latitude})'`
+  return fetchStations(`within_distance(geom, ${point}, ${radiusKm}km) and ${fuel}_prix is not null`, {
+    orderBy: `${fuel}_prix, distance(geom, ${point})`,
+    limit,
+    signal,
+  })
 }
