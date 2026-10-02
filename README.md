@@ -38,6 +38,7 @@ Application web qui compare les prix des carburants en France à partir des donn
 - **Itinéraire** vers chaque station en un clic (Google Maps).
 - **États soignés** : chargement (squelettes), erreur réseau avec « Réessayer », aucun résultat, géolocalisation refusée.
 - **Mobile first** : en vue carte, l'application tient exactement dans l'écran du téléphone, sans défilement.
+- **Installable sur l'écran d'accueil** (PWA) : l'application s'ouvre ensuite en plein écran, comme une application native. Sur Android, un bouton « Installer » ouvre directement l'installation ; sur iPhone, il affiche la marche à suivre.
 
 ## Stack technique
 
@@ -70,7 +71,8 @@ src/
 ├── hooks/
 │   ├── useStations.js      # Recherche des stations (chargement, erreurs, géolocalisation)
 │   ├── useCheapestNearby.js# Les moins chères dans un rayon (debounce + annulation)
-│   └── useSelectedFuel.js  # Carburant choisi, mémorisé dans le localStorage
+│   ├── useSelectedFuel.js  # Carburant choisi, mémorisé dans le localStorage
+│   └── useInstallPrompt.js # Installation sur l'écran d'accueil (Android et iPhone)
 ├── components/             # Composants d'interface (SearchBar, StationCard, StationMap…)
 ├── utils/                  # Fonctions pures : distance, tri, formatage, géolocalisation
 ├── App.jsx                 # État principal et mise en page (liste ou carte)
