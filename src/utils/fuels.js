@@ -8,3 +8,9 @@ export const FUELS = [
   { id: 'e85', label: 'E85' },
   { id: 'gplc', label: 'GPL' },
 ]
+
+export const DEFAULT_FUEL = 'gazole'
+
+export function getFuelLabel(fuelId) {
+  return FUELS.find((fuel) => fuel.id === fuelId)?.label ?? fuelId
+}

@@ -1,10 +1,11 @@
 import StationList from './StationList'
 import StationListSkeleton from './StationListSkeleton'
 import StatusMessage from './StatusMessage'
+import { getFuelLabel } from '../utils/fuels'
 
 // Choisit quoi afficher selon l'état de la recherche.
 // Chaque `if` traite un cas puis sort de la fonction (early return).
-function SearchResults({ status, stations, lastQuery, onRetry }) {
+function SearchResults({ status, stations, visibleStations, selectedFuel, lastQuery, onRetry }) {
   if (status === 'idle') {
     return (
       <StatusMessage
@@ -39,7 +40,17 @@ function SearchResults({ status, stations, lastQuery, onRetry }) {
     )
   }
 
-  return <StationList stations={stations} />
+  // Des stations existent, mais aucune ne vend le carburant choisi
+  if (visibleStations.length === 0) {
+    return (
+      <StatusMessage
+        title={`${getFuelLabel(selectedFuel)} indisponible`}
+        description={`Aucune des stations trouvées pour « ${lastQuery} » ne propose ce carburant. Essayez-en un autre.`}
+      />
+    )
+  }
+
+  return <StationList stations={visibleStations} selectedFuel={selectedFuel} />
 }
 
 export default SearchResults

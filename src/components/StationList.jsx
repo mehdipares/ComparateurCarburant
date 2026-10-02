@@ -1,6 +1,6 @@
 import StationCard from './StationCard'
 
-function StationList({ stations }) {
+function StationList({ stations, selectedFuel }) {
   return (
     <section className="mt-6">
       <h2 className="mb-3 text-sm font-medium text-slate-600">
@@ -9,7 +9,7 @@ function StationList({ stations }) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stations.map((station) => (
-          <StationCard key={station.id} station={station} />
+          <StationCard key={station.id} station={station} selectedFuel={selectedFuel} />
         ))}
       </div>
     </section>

@@ -1,10 +1,16 @@
+import FuelFilter from './components/FuelFilter'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
 import SearchResults from './components/SearchResults'
+import useSelectedFuel from './hooks/useSelectedFuel'
 import useStations from './hooks/useStations'
 
 function App() {
   const { stations, status, lastQuery, searchByLocation, retry } = useStations()
+  const [selectedFuel, setSelectedFuel] = useSelectedFuel()
+
+  // Donnée dérivée : recalculée à chaque rendu, sans nouvel appel à l'API
+  const visibleStations = stations.filter((station) => station.prices[selectedFuel] != null)
 
   return (
     <div className="min-h-screen font-sans">
@@ -12,10 +18,13 @@ function App() {
 
       <main className="mx-auto max-w-5xl px-4 py-6">
         <SearchBar onSearch={searchByLocation} isLoading={status === 'loading'} />
+        <FuelFilter selectedFuel={selectedFuel} onChange={setSelectedFuel} />
 
         <SearchResults
           status={status}
           stations={stations}
+          visibleStations={visibleStations}
+          selectedFuel={selectedFuel}
           lastQuery={lastQuery}
           onRetry={retry}
         />

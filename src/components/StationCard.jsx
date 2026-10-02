@@ -1,30 +1,44 @@
-import { FUELS } from '../utils/fuels'
+import { FUELS, getFuelLabel } from '../utils/fuels'
 import { formatPrice } from '../utils/format'
 
-function StationCard({ station }) {
-  // On n'affiche que les carburants vendus par la station
-  const availableFuels = FUELS.filter((fuel) => station.prices[fuel.id] != null)
+function StationCard({ station, selectedFuel }) {
+  // Les autres carburants vendus par la station, affichés en plus petit
+  const otherFuels = FUELS.filter(
+    (fuel) => fuel.id !== selectedFuel && station.prices[fuel.id] != null,
+  )
 
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`
 
   return (
     <article className="flex flex-col rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
-      <h3 className="font-semibold capitalize leading-snug">{station.address}</h3>
-      <p className="text-sm text-slate-500">
-        {station.postalCode} {station.city}
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="font-semibold capitalize leading-snug">{station.address}</h3>
+          <p className="text-sm text-slate-500">
+            {station.postalCode} {station.city}
+          </p>
+        </div>
 
-      {availableFuels.length > 0 ? (
-        <ul className="mt-4 grid grid-cols-3 gap-2">
-          {availableFuels.map((fuel) => (
-            <li key={fuel.id} className="rounded-lg bg-slate-50 px-2 py-1.5 text-center">
-              <span className="block text-xs font-medium text-slate-500">{fuel.label}</span>
-              <span className="text-sm font-semibold">{formatPrice(station.prices[fuel.id])}</span>
+        {/* Prix du carburant sélectionné, mis en avant */}
+        <div className="shrink-0 rounded-xl bg-emerald-50 px-3 py-2 text-right">
+          <span className="block text-xs font-medium text-emerald-700">
+            {getFuelLabel(selectedFuel)}
+          </span>
+          <span className="text-lg font-bold text-emerald-800">
+            {formatPrice(station.prices[selectedFuel])}
+          </span>
+        </div>
+      </div>
+
+      {otherFuels.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+          {otherFuels.map((fuel) => (
+            <li key={fuel.id}>
+              {fuel.label}{' '}
+              <span className="font-medium text-slate-700">{formatPrice(station.prices[fuel.id])}</span>
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="mt-4 text-sm text-slate-500">Aucun prix disponible.</p>
       )}
 
       <a
