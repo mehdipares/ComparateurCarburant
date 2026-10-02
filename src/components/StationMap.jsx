@@ -21,21 +21,22 @@ const FRANCE_CENTER = [46.6, 2.4]
 // En dessous de ce zoom, les étiquettes de prix se chevaucheraient : on affiche des points
 const PRICE_LABEL_MIN_ZOOM = 12
 
-// Style des épingles selon le niveau de prix (vert = bon prix, rose = cher).
+// Style des épingles selon le niveau de prix (jaune = bon prix, rose = cher).
 // Les classes sont écrites en entier pour que Tailwind les détecte.
 const PIN_STYLES = {
-  cheapest: { box: 'bg-emerald-600 text-white px-2.5 py-1 text-sm', ring: 'ring-emerald-800', tail: 'border-t-emerald-600' },
-  cheap: { box: 'bg-emerald-50 text-emerald-800 px-2 py-0.5 text-xs', ring: 'ring-emerald-400', tail: 'border-t-emerald-50' },
+  cheapest: { box: 'bg-accent-400 text-slate-900 px-2.5 py-1 text-sm', ring: 'ring-accent-500', tail: 'border-t-accent-400' },
+  cheap: { box: 'bg-accent-100 text-accent-900 px-2 py-0.5 text-xs', ring: 'ring-accent-400', tail: 'border-t-accent-100' },
   average: { box: 'bg-white text-slate-800 px-2 py-0.5 text-xs', ring: 'ring-slate-300', tail: 'border-t-white' },
   expensive: { box: 'bg-rose-50 text-rose-700 px-2 py-0.5 text-xs', ring: 'ring-rose-300', tail: 'border-t-rose-50' },
 }
 
-// Même code couleur pour les points affichés quand on est loin
-const DOT_COLORS = {
-  cheapest: '#047857',
-  cheap: '#10b981',
-  average: '#94a3b8',
-  expensive: '#fb7185',
+// Même code couleur pour les points affichés quand on est loin.
+// Contour foncé sur les points jaunes pour qu'ils restent visibles sur le fond clair
+const DOT_STYLES = {
+  cheapest: { fill: '#facc15', stroke: '#854d0e' },
+  cheap: { fill: '#fef08a', stroke: '#a16207' },
+  average: { fill: '#94a3b8', stroke: '#ffffff' },
+  expensive: { fill: '#fb7185', stroke: '#ffffff' },
 }
 
 // Plus le prix est bas, plus l'épingle passe au-dessus des autres
@@ -45,7 +46,7 @@ const Z_INDEX = { cheapest: 1000, cheap: 500, average: 0, expensive: 0 }
 // L.divIcon permet d'utiliser du HTML à la place de l'image de marqueur par défaut.
 function createPriceIcon(price, tier, isFocused) {
   const style = PIN_STYLES[tier]
-  const ring = isFocused ? 'ring-4 ring-amber-400 scale-125' : `ring-1 ${style.ring}`
+  const ring = isFocused ? 'ring-4 ring-brand-600 scale-125' : `ring-1 ${style.ring}`
   const star = tier === 'cheapest' ? '★ ' : ''
 
   return L.divIcon({
@@ -72,20 +73,31 @@ const userPositionIcon = L.divIcon({
     </div>`,
 })
 
-// Recadre la carte sur les stations (et la position de l'utilisateur) à chaque nouvelle liste.
+// Zoom utilisé quand on centre la carte sur l'utilisateur : assez proche pour voir les prix
+const USER_ZOOM = 13
+
+// Cadre la carte à chaque nouvelle liste de stations.
 // useMap donne accès à l'objet carte de Leaflet, qui vit en dehors de React.
 function FitToStations({ stations, userPosition }) {
   const map = useMap()
 
   useEffect(() => {
-    const points = stations.map((station) => [station.latitude, station.longitude])
+    if (stations.length === 0) return
+
+    const bounds = L.latLngBounds(stations.map((station) => [station.latitude, station.longitude]))
+
+    // L'utilisateur est au milieu des résultats ("autour de moi") : on zoome près de lui
     if (userPosition) {
-      points.push([userPosition.latitude, userPosition.longitude])
+      const userLatLng = L.latLng(userPosition.latitude, userPosition.longitude)
+      if (bounds.contains(userLatLng)) {
+        map.setView(userLatLng, USER_ZOOM)
+        return
+      }
     }
-    if (points.length > 0) {
-      // Marges plus grandes en haut (carburants) et en bas (panneau "moins chère")
-      map.fitBounds(points, { paddingTopLeft: [30, 70], paddingBottomRight: [30, 130], maxZoom: 15 })
-    }
+
+    // Sinon (recherche d'une ville), on englobe toutes les stations trouvées.
+    // Marges plus grandes en haut (carburants) et en bas (bulle "moins chères")
+    map.fitBounds(bounds, { paddingTopLeft: [30, 70], paddingBottomRight: [30, 90], maxZoom: 15 })
   }, [map, stations, userPosition])
 
   return null // Ce composant n'affiche rien : il agit seulement sur la carte
@@ -188,7 +200,12 @@ function StationMarkers({ stations, selectedFuel, focusedStationId }) {
         key={station.id}
         center={position}
         radius={tier === 'cheapest' ? 9 : 6}
-        pathOptions={{ color: '#ffffff', weight: 2, fillColor: DOT_COLORS[tier], fillOpacity: 1 }}
+        pathOptions={{
+          color: DOT_STYLES[tier].stroke,
+          weight: 2,
+          fillColor: DOT_STYLES[tier].fill,
+          fillOpacity: 1,
+        }}
       >
         <StationPopup station={station} selectedFuel={selectedFuel} />
       </CircleMarker>
@@ -216,14 +233,17 @@ function StationMap({ stations, fitStations, selectedFuel, userPosition, focused
       />
       <ZoomControl position="bottomright" />
 
-      <FitToStations stations={fitStations} userPosition={userPosition} />
-      <FlyToStation station={focusedStation} />
-
+      {/* L'ordre compte : React exécute les effets des composants frères dans l'ordre.
+          StationMarkers doit écouter le zoom AVANT que FitToStations ne zoome,
+          sinon l'événement "zoomend" est perdu et les marqueurs restent en mode "points" */}
       <StationMarkers
         stations={stations}
         selectedFuel={selectedFuel}
         focusedStationId={focusedStation?.id}
       />
+
+      <FitToStations stations={fitStations} userPosition={userPosition} />
+      <FlyToStation station={focusedStation} />
 
       {userPosition && (
         <Marker

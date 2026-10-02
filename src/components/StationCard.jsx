@@ -14,7 +14,7 @@ function StationCard({ station, selectedFuel, isCheapest }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {isCheapest && (
-            <span className="mb-1.5 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+            <span className="mb-1.5 inline-block rounded-full bg-accent-400 px-2 py-0.5 text-xs font-semibold text-slate-900">
               Le moins cher
             </span>
           )}
@@ -28,11 +28,11 @@ function StationCard({ station, selectedFuel, isCheapest }) {
         </div>
 
         {/* Prix du carburant sélectionné, mis en avant */}
-        <div className="shrink-0 rounded-xl bg-emerald-50 px-3 py-2 text-right">
-          <span className="block text-xs font-medium text-emerald-700">
+        <div className="shrink-0 rounded-xl bg-accent-100 px-3 py-2 text-right ring-1 ring-accent-300">
+          <span className="block text-xs font-medium text-accent-900">
             {getFuelLabel(selectedFuel)}
           </span>
-          <span className="text-lg font-bold text-emerald-800">
+          <span className="text-lg font-bold text-slate-900">
             {formatPrice(station.prices[selectedFuel])}
           </span>
         </div>
@@ -53,7 +53,7 @@ function StationCard({ station, selectedFuel, isCheapest }) {
         href={directionsUrl}
         target="_blank"
         rel="noreferrer"
-        className="mt-auto self-start pt-4 text-sm font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
+        className="mt-auto self-start pt-4 text-sm font-medium text-brand-700 hover:text-brand-800 hover:underline"
       >
         Itinéraire →
       </a>

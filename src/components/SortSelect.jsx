@@ -21,7 +21,7 @@ function SortSelect({ sortBy, onChange, canSortByDistance }) {
               disabled={isDisabled}
               title={isDisabled ? 'Utilisez « Autour de moi » pour trier par distance' : undefined}
               onClick={() => onChange(option.id)}
-              className={`rounded-full px-4 py-1 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:text-slate-400 ${
+              className={`rounded-full px-4 py-1 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:text-slate-400 ${
                 isSelected ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
               }`}
             >

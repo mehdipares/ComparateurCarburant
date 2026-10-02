@@ -24,11 +24,11 @@ function FuelFilter({ selectedFuel, onChange, floating = false }) {
               type="button"
               aria-pressed={isSelected}
               onClick={() => onChange(fuel.id)}
-              className={`shrink-0 rounded-full py-1.5 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 ${
+              className={`shrink-0 rounded-full py-1.5 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
                 floating ? 'px-2.5 shadow-md' : 'px-4'
               } ${
                 isSelected
-                  ? 'bg-emerald-600 text-white shadow-sm'
+                  ? 'bg-brand-600 text-white shadow-sm'
                   : 'bg-white text-slate-700 ring-1 ring-slate-300 hover:bg-slate-100'
               }`}
             >

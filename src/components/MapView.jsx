@@ -130,7 +130,11 @@ function MapView({ stations, selectedFuel, onFuelChange, userPosition, isLoading
                   type="button"
                   onClick={() => setIsFinderOpen(true)}
                   aria-expanded={false}
-                  className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                  // Tant que le panneau n'a jamais servi, la bulle rebondit pour attirer l'œil
+                  // (motion-safe : désactivé si l'utilisateur a demandé de réduire les animations)
+                  className={`flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/20 transition hover:bg-brand-700 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
+                    radiusKm === null ? 'motion-safe:animate-nudge' : ''
+                  }`}
                 >
                   <span aria-hidden="true">★</span>
                   Les moins chères

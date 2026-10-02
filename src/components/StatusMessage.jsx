@@ -16,7 +16,7 @@ const ICONS = {
 }
 
 const STYLES = {
-  info: 'bg-emerald-50 text-emerald-600',
+  info: 'bg-accent-100 text-accent-900',
   error: 'bg-red-50 text-red-600',
 }
 
@@ -49,7 +49,7 @@ function StatusMessage({ variant = 'info', title, description, actionLabel, onAc
         <button
           type="button"
           onClick={onAction}
-          className="mt-5 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+          className="mt-5 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
         >
           {actionLabel}
         </button>

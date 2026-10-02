@@ -27,12 +27,12 @@ function SearchBar({ onSearch, onLocate, isLoading }) {
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Ville, code postal ou département"
         autoComplete="address-level2"
-        className="col-span-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 sm:col-span-1"
+        className="col-span-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200 sm:col-span-1"
       />
       <button
         type="submit"
         disabled={isLoading}
-        className="whitespace-nowrap rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold sm:px-6 sm:text-base text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-wait disabled:opacity-60"
+        className="whitespace-nowrap rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold sm:px-6 sm:text-base text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-wait disabled:opacity-60"
       >
         {isLoading ? 'Recherche…' : 'Rechercher'}
       </button>
@@ -40,7 +40,7 @@ function SearchBar({ onSearch, onLocate, isLoading }) {
         type="button"
         onClick={onLocate}
         disabled={isLoading}
-        className="flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3 py-3 text-sm font-semibold sm:px-4 sm:text-base text-emerald-700 shadow-sm ring-1 ring-emerald-600 transition hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-wait disabled:opacity-60"
+        className="flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3 py-3 text-sm font-semibold sm:px-4 sm:text-base text-brand-700 shadow-sm ring-1 ring-brand-600 transition hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-wait disabled:opacity-60"
       >
         <LocateIcon className="h-5 w-5" />
         Autour de moi

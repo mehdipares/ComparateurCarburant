@@ -47,7 +47,7 @@ function SearchResults({
         <button
           type="button"
           onClick={onLocate}
-          className="flex w-full max-w-md items-center gap-4 rounded-2xl bg-emerald-600 px-6 py-5 text-left text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-700 hover:shadow-xl active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
+          className="flex w-full max-w-md items-center gap-4 rounded-2xl bg-brand-600 px-6 py-5 text-left text-white shadow-lg shadow-brand-600/30 transition hover:bg-brand-700 hover:shadow-xl active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
         >
           <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15">
             <span className="absolute inset-0 animate-ping rounded-full bg-white/25" />
@@ -55,7 +55,7 @@ function SearchResults({
           </span>
           <span>
             <span className="block text-lg font-semibold">Stations autour de moi</span>
-            <span className="block text-sm text-emerald-50">
+            <span className="block text-sm text-brand-50">
               Dans un rayon de {SEARCH_RADIUS_KM}&nbsp;km
             </span>
           </span>

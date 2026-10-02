@@ -1,8 +1,45 @@
 @import 'tailwindcss';
 
-/* Variables du thème : utilisables ensuite comme classes Tailwind (ex. font-sans) */
+/* Variables du thème : utilisables ensuite comme classes Tailwind
+   (ex. font-sans, bg-brand-600, text-accent-400) */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Identité visuelle "station-service" : changer ces valeurs suffit à changer tout le site.
+     brand  (rouge) : header, boutons, liens, éléments sélectionnés
+     accent (jaune) : logo, mises en avant (prix, étoile, station sélectionnée) */
+  --color-brand-50: var(--color-red-50);
+  --color-brand-100: var(--color-red-100);
+  --color-brand-200: var(--color-red-200);
+  --color-brand-500: var(--color-red-500);
+  --color-brand-600: var(--color-red-600);
+  --color-brand-700: var(--color-red-700);
+  --color-brand-800: var(--color-red-800);
+  --color-brand-900: var(--color-red-900);
+
+  --color-accent-50: var(--color-yellow-50);
+  --color-accent-100: var(--color-yellow-100);
+  --color-accent-300: var(--color-yellow-300);
+  --color-accent-400: var(--color-yellow-400);
+  --color-accent-500: var(--color-yellow-500);
+  --color-accent-900: var(--color-yellow-900);
+
+  /* Petit rebond pour attirer l'œil : 3 fois, après 1 s, puis il s'arrête.
+     Utilisable avec la classe animate-nudge */
+  --animate-nudge: nudge 0.8s ease-in-out 1s 3;
+
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-4px);
+    }
+  }
 }
 
 body {
