@@ -6,7 +6,8 @@ import useSelectedFuel from './hooks/useSelectedFuel'
 import useStations from './hooks/useStations'
 
 function App() {
-  const { stations, status, lastQuery, searchByLocation, retry } = useStations()
+  const { stations, status, errorType, lastSearch, searchByLocation, searchAroundMe, retry } =
+    useStations()
   const [selectedFuel, setSelectedFuel] = useSelectedFuel()
 
   // Donnée dérivée : recalculée à chaque rendu, sans nouvel appel à l'API
@@ -17,15 +18,20 @@ function App() {
       <Header />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <SearchBar onSearch={searchByLocation} isLoading={status === 'loading'} />
+        <SearchBar
+          onSearch={searchByLocation}
+          onLocate={searchAroundMe}
+          isLoading={status === 'loading'}
+        />
         <FuelFilter selectedFuel={selectedFuel} onChange={setSelectedFuel} />
 
         <SearchResults
           status={status}
+          errorType={errorType}
           stations={stations}
           visibleStations={visibleStations}
           selectedFuel={selectedFuel}
-          lastQuery={lastQuery}
+          lastSearch={lastSearch}
           onRetry={retry}
         />
       </main>

@@ -44,12 +44,15 @@ function buildLocationFilter(query) {
   return `ville like "${value}"` // Nom de ville (insensible à la casse et aux accents)
 }
 
-async function fetchStations(where) {
+async function fetchStations(where, orderBy) {
   const params = new URLSearchParams({
     where,
     select: FIELDS.join(','),
     limit: MAX_RESULTS,
   })
+  if (orderBy) {
+    params.set('order_by', orderBy)
+  }
 
   const response = await fetch(`${API_URL}?${params}`, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -66,4 +69,11 @@ async function fetchStations(where) {
 
 export function searchStationsByLocation(query) {
   return fetchStations(buildLocationFilter(query))
+}
+
+// Stations dans un rayon autour d'un point, les plus proches en premier.
+// Attention : l'API attend la longitude AVANT la latitude.
+export function searchStationsAround({ latitude, longitude }, radiusKm) {
+  const point = `geom'POINT(${longitude} ${latitude})'`
+  return fetchStations(`within_distance(geom, ${point}, ${radiusKm}km)`, `distance(geom, ${point})`)
 }
