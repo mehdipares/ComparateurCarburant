@@ -64,6 +64,7 @@ function App() {
           lastSearch={lastSearch}
           userPosition={userPosition}
           onRetry={retry}
+          onLocate={handleLocate}
         />
       </main>
 
