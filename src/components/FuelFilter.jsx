@@ -2,7 +2,7 @@ import { FUELS } from '../utils/fuels'
 
 function FuelFilter({ selectedFuel, onChange }) {
   return (
-    <fieldset className="mt-4">
+    <fieldset>
       <legend className="mb-2 text-sm font-medium text-slate-600">Carburant</legend>
 
       <div className="flex flex-wrap gap-2">

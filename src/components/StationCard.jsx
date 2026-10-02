@@ -1,7 +1,7 @@
 import { FUELS, getFuelLabel } from '../utils/fuels'
-import { formatPrice } from '../utils/format'
+import { formatDistance, formatPrice } from '../utils/format'
 
-function StationCard({ station, selectedFuel }) {
+function StationCard({ station, selectedFuel, isCheapest }) {
   // Les autres carburants vendus par la station, affichés en plus petit
   const otherFuels = FUELS.filter(
     (fuel) => fuel.id !== selectedFuel && station.prices[fuel.id] != null,
@@ -13,9 +13,17 @@ function StationCard({ station, selectedFuel }) {
     <article className="flex flex-col rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
+          {isCheapest && (
+            <span className="mb-1.5 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+              Le moins cher
+            </span>
+          )}
           <h3 className="font-semibold capitalize leading-snug">{station.address}</h3>
           <p className="text-sm text-slate-500">
             {station.postalCode} {station.city}
+            {station.distance != null && (
+              <span className="whitespace-nowrap font-medium text-slate-700"> · à {formatDistance(station.distance)}</span>
+            )}
           </p>
         </div>
 

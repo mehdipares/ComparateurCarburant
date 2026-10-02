@@ -15,6 +15,7 @@ function useStations() {
   const [status, setStatus] = useState('idle')
   const [errorType, setErrorType] = useState(null) // 'api' | 'denied' | 'unavailable'
   const [lastSearch, setLastSearch] = useState(null) // { type: 'location', query } ou { type: 'around' }
+  const [userPosition, setUserPosition] = useState(null) // Conservée pour calculer les distances
 
   // Logique commune aux deux types de recherche : chargement, succès ou erreur.
   // `fetchResults` est une fonction asynchrone qui renvoie la liste des stations.
@@ -43,6 +44,7 @@ function useStations() {
     setLastSearch({ type: 'around' })
     runSearch(async () => {
       const position = await getCurrentPosition()
+      setUserPosition(position)
       return searchStationsAround(position, SEARCH_RADIUS_KM)
     })
   }
@@ -55,7 +57,16 @@ function useStations() {
     }
   }
 
-  return { stations, status, errorType, lastSearch, searchByLocation, searchAroundMe, retry }
+  return {
+    stations,
+    status,
+    errorType,
+    lastSearch,
+    userPosition,
+    searchByLocation,
+    searchAroundMe,
+    retry,
+  }
 }
 
 export default useStations

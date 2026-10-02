@@ -1,17 +1,39 @@
+import { useMemo, useState } from 'react'
 import FuelFilter from './components/FuelFilter'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
 import SearchResults from './components/SearchResults'
+import SortSelect from './components/SortSelect'
 import useSelectedFuel from './hooks/useSelectedFuel'
 import useStations from './hooks/useStations'
+import { getVisibleStations } from './utils/stations'
 
 function App() {
-  const { stations, status, errorType, lastSearch, searchByLocation, searchAroundMe, retry } =
-    useStations()
+  const {
+    stations,
+    status,
+    errorType,
+    lastSearch,
+    userPosition,
+    searchByLocation,
+    searchAroundMe,
+    retry,
+  } = useStations()
   const [selectedFuel, setSelectedFuel] = useSelectedFuel()
+  const [sortBy, setSortBy] = useState('price') // 'price' | 'distance'
 
-  // Donnée dérivée : recalculée à chaque rendu, sans nouvel appel à l'API
-  const visibleStations = stations.filter((station) => station.prices[selectedFuel] != null)
+  // Donnée dérivée : filtrée et triée sans nouvel appel à l'API.
+  // useMemo ne refait le calcul que si l'une des dépendances change.
+  const visibleStations = useMemo(
+    () => getVisibleStations(stations, { fuel: selectedFuel, sortBy, userPosition }),
+    [stations, selectedFuel, sortBy, userPosition],
+  )
+
+  // Quand l'utilisateur cherche autour de lui, le tri par distance est le plus logique
+  function handleLocate() {
+    setSortBy('distance')
+    searchAroundMe()
+  }
 
   return (
     <div className="min-h-screen font-sans">
@@ -20,10 +42,18 @@ function App() {
       <main className="mx-auto max-w-5xl px-4 py-6">
         <SearchBar
           onSearch={searchByLocation}
-          onLocate={searchAroundMe}
+          onLocate={handleLocate}
           isLoading={status === 'loading'}
         />
-        <FuelFilter selectedFuel={selectedFuel} onChange={setSelectedFuel} />
+
+        <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <FuelFilter selectedFuel={selectedFuel} onChange={setSelectedFuel} />
+          <SortSelect
+            sortBy={sortBy}
+            onChange={setSortBy}
+            canSortByDistance={userPosition !== null}
+          />
+        </div>
 
         <SearchResults
           status={status}
