@@ -25,6 +25,19 @@ function createPriceIcon(price, isCheapest) {
   })
 }
 
+// Point bleu "Vous êtes ici" : un point avec contour blanc, un halo et une onde animée.
+// Créé une seule fois : il ne dépend d'aucune donnée.
+const userPositionIcon = L.divIcon({
+  className: '',
+  iconSize: null,
+  html: `
+    <div class="relative flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+      <span class="absolute h-12 w-12 rounded-full bg-blue-500/15"></span>
+      <span class="absolute h-full w-full animate-ping rounded-full bg-blue-500/50"></span>
+      <span class="relative h-5 w-5 rounded-full border-[3px] border-white bg-blue-600 shadow-lg"></span>
+    </div>`,
+})
+
 // Recadre la carte sur les stations (et la position de l'utilisateur) à chaque nouvelle liste.
 // useMap donne accès à l'objet carte de Leaflet, qui vit en dehors de React.
 function FitToStations({ stations, userPosition }) {
@@ -124,9 +137,12 @@ function StationMap({ stations, selectedFuel, cheapestPrice, userPosition }) {
 
   return (
     <MapContainer center={FRANCE_CENTER} zoom={6} scrollWheelZoom className="h-full w-full">
+      {/* Tuiles OpenStreetMap passées en niveaux de gris avec un filtre CSS :
+          un fond sobre sur lequel les marqueurs colorés ressortent */}
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        className="brightness-105 contrast-90 grayscale"
       />
 
       <FitToStations stations={locatedStations} userPosition={userPosition} />
@@ -138,13 +154,13 @@ function StationMap({ stations, selectedFuel, cheapestPrice, userPosition }) {
       />
 
       {userPosition && (
-        <CircleMarker
-          center={[userPosition.latitude, userPosition.longitude]}
-          radius={9}
-          pathOptions={{ color: '#ffffff', weight: 3, fillColor: '#2563eb', fillOpacity: 1 }}
+        <Marker
+          position={[userPosition.latitude, userPosition.longitude]}
+          icon={userPositionIcon}
+          zIndexOffset={2000} // Toujours au-dessus des stations
         >
           <Popup>Vous êtes ici</Popup>
-        </CircleMarker>
+        </Marker>
       )}
     </MapContainer>
   )
