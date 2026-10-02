@@ -39,7 +39,7 @@ function App() {
     <div className="min-h-screen font-sans">
       <Header />
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-6">
         <SearchBar
           onSearch={searchByLocation}
           onLocate={handleLocate}
@@ -62,6 +62,7 @@ function App() {
           visibleStations={visibleStations}
           selectedFuel={selectedFuel}
           lastSearch={lastSearch}
+          userPosition={userPosition}
           onRetry={retry}
         />
       </main>

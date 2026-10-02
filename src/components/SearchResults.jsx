@@ -28,7 +28,16 @@ const ERROR_MESSAGES = {
 
 // Choisit quoi afficher selon l'état de la recherche.
 // Chaque `if` traite un cas puis sort de la fonction (early return).
-function SearchResults({ status, errorType, stations, visibleStations, selectedFuel, lastSearch, onRetry }) {
+function SearchResults({
+  status,
+  errorType,
+  stations,
+  visibleStations,
+  selectedFuel,
+  lastSearch,
+  userPosition,
+  onRetry,
+}) {
   if (status === 'idle') {
     return (
       <StatusMessage
@@ -84,7 +93,9 @@ function SearchResults({ status, errorType, stations, visibleStations, selectedF
     )
   }
 
-  return <StationList stations={visibleStations} selectedFuel={selectedFuel} />
+  return (
+    <StationList stations={visibleStations} selectedFuel={selectedFuel} userPosition={userPosition} />
+  )
 }
 
 export default SearchResults
