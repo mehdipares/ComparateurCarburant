@@ -30,10 +30,24 @@ function formatStation(record) {
   }
 }
 
+// Retire les guillemets, qui casseraient la syntaxe de la requête
+function sanitize(text) {
+  return text.trim().replace(/"/g, '')
+}
+
+// Met un nom de ville sous une forme comparable : "Saint-Étienne" → "saint etienne"
+function normalizeCityName(name) {
+  return name
+    .normalize('NFD') // Sépare les lettres de leurs accents : "é" → "e" + "´"
+    .replace(/[̀-ͯ]/g, '') // Supprime les accents
+    .replace(/[-']/g, ' ')
+    .toLowerCase()
+    .trim()
+}
+
 // Construit le filtre `where` de l'API selon ce que l'utilisateur a tapé
 function buildLocationFilter(query) {
-  // On retire les guillemets pour ne pas casser la syntaxe de la requête
-  const value = query.trim().replace(/"/g, '')
+  const value = sanitize(query)
 
   if (/^\d{5}$/.test(value)) {
     return `cp = "${value}"` // Code postal : 69003
@@ -44,21 +58,12 @@ function buildLocationFilter(query) {
   return `ville like "${value}"` // Nom de ville (insensible à la casse et aux accents)
 }
 
-// Options : `orderBy` (tri côté serveur), `limit` (nombre de résultats),
-// `signal` (pour pouvoir annuler la requête depuis l'extérieur)
-async function fetchStations(where, { orderBy, limit = MAX_RESULTS, signal } = {}) {
-  const params = new URLSearchParams({
-    where,
-    select: FIELDS.join(','),
-    limit,
-  })
-  if (orderBy) {
-    params.set('order_by', orderBy)
-  }
-
+// Appel générique à l'API : construit l'URL, gère le délai maximum et l'annulation.
+// `signal` permet à l'appelant d'annuler la requête (AbortController)
+async function fetchApi(params, signal) {
   // La requête s'arrête si elle dépasse le délai OU si l'appelant l'annule
   const timeoutSignal = AbortSignal.timeout(TIMEOUT_MS)
-  const response = await fetch(`${API_URL}?${params}`, {
+  const response = await fetch(`${API_URL}?${new URLSearchParams(params)}`, {
     signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
   })
 
@@ -68,21 +73,28 @@ async function fetchStations(where, { orderBy, limit = MAX_RESULTS, signal } = {
   }
 
   const data = await response.json()
-  return data.results.map(formatStation)
+  return data.results
 }
 
-// Met un nom de ville sous une forme comparable : "Saint-Étienne" → "saint etienne"
-function normalizeCityName(name) {
-  return name
-    .normalize('NFD') // Sépare les lettres de leurs accents : "é" → "e" + "´"
-    .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
-    .replace(/[-']/g, ' ')
-    .toLowerCase()
-    .trim()
+// Options : `orderBy` (tri côté serveur), `limit` (nombre de résultats), `signal` (annulation)
+async function fetchStations(where, { orderBy, limit = MAX_RESULTS, signal } = {}) {
+  const params = { where, select: FIELDS.join(','), limit }
+  if (orderBy) {
+    params.order_by = orderBy
+  }
+
+  const results = await fetchApi(params, signal)
+  return results.map(formatStation)
 }
 
-export async function searchStationsByLocation(query) {
-  const stations = await fetchStations(buildLocationFilter(query))
+// `department` (facultatif) : limite la recherche à un département, utile quand plusieurs
+// villes portent le même nom (Saint-Denis existe dans le 93 et à La Réunion)
+export async function searchStationsByLocation(query, department) {
+  let where = buildLocationFilter(query)
+  if (department) {
+    where += ` and code_departement = "${sanitize(department)}"`
+  }
+  const stations = await fetchStations(where)
 
   // `like "Lyon"` renvoie aussi "Chazelles-sur-Lyon". Si des stations correspondent
   // exactement à la ville tapée, on ne garde qu'elles ; sinon on garde tout.
@@ -110,4 +122,36 @@ export function searchCheapestAround({ latitude, longitude }, radiusKm, fuel, { 
     limit,
     signal,
   })
+}
+
+// Suggestions de villes pendant la saisie. On interroge l'API des carburants elle-même :
+// elle ne propose donc que des villes qui ont des stations (jamais de recherche vide).
+// Renvoie [{ city, department, stationCount }], les villes les mieux équipées en premier.
+export async function searchCities(text, { limit = 6, signal } = {}) {
+  // Sans accents ("béz" → "bez") et avec * : les mots qui COMMENCENT par la saisie
+  const prefix = normalizeCityName(sanitize(text))
+  const results = await fetchApi(
+    {
+      where: `ville like "${prefix}*"`,
+      select: 'ville, code_departement, count(*) as stations',
+      group_by: 'ville, code_departement',
+      order_by: 'stations desc',
+      limit: 20, // On en demande plus pour pouvoir les reclasser ci-dessous
+    },
+    signal,
+  )
+
+  const cities = results.map((result) => ({
+    city: result.ville,
+    department: result.code_departement,
+    stationCount: result.stations,
+  }))
+
+  // L'API trouve les mots qui commencent par la saisie, n'importe où dans le nom :
+  // "saint d" trouve aussi Saint-Jean-de-Braye ("de"). On place d'abord les villes dont
+  // le NOM COMPLET commence par la saisie, puis celles qui ont le plus de stations
+  const startsWithPrefix = (city) => normalizeCityName(city.city).startsWith(prefix)
+  return cities
+    .sort((a, b) => startsWithPrefix(b) - startsWithPrefix(a) || b.stationCount - a.stationCount)
+    .slice(0, limit)
 }

@@ -14,7 +14,7 @@ function useStations() {
   const [stations, setStations] = useState([])
   const [status, setStatus] = useState('idle')
   const [errorType, setErrorType] = useState(null) // 'api' | 'denied' | 'unavailable'
-  const [lastSearch, setLastSearch] = useState(null) // { type: 'location', query } ou { type: 'around' }
+  const [lastSearch, setLastSearch] = useState(null) // { type: 'location', query, department } ou { type: 'around' }
   const [userPosition, setUserPosition] = useState(null) // Conservée pour calculer les distances
 
   // Logique commune aux deux types de recherche : chargement, succès ou erreur.
@@ -35,9 +35,10 @@ function useStations() {
     }
   }
 
-  function searchByLocation(query) {
-    setLastSearch({ type: 'location', query })
-    runSearch(() => searchStationsByLocation(query))
+  // `department` (facultatif) : fourni quand on choisit une ville dans les suggestions
+  function searchByLocation(query, department) {
+    setLastSearch({ type: 'location', query, department })
+    runSearch(() => searchStationsByLocation(query, department))
   }
 
   function searchAroundMe() {
@@ -53,7 +54,7 @@ function useStations() {
     if (lastSearch?.type === 'around') {
       searchAroundMe()
     } else {
-      searchByLocation(lastSearch.query)
+      searchByLocation(lastSearch.query, lastSearch.department)
     }
   }
 
