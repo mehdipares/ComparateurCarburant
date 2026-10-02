@@ -18,7 +18,7 @@ function formatStation(record) {
 
   return {
     id: record.id,
-    address: record.adresse,
+    address: record.adresse?.toLowerCase(), // Souvent en majuscules dans l'API
     city: record.ville,
     postalCode: record.cp,
     latitude: record.geom?.lat,

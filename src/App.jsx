@@ -1,32 +1,19 @@
-import { useState } from 'react'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
-import { searchStationsByLocation } from './api/fuelApi'
+import StationList from './components/StationList'
+import useStations from './hooks/useStations'
 
 function App() {
-  const [stations, setStations] = useState([])
-
-  async function handleSearch(query) {
-    const results = await searchStationsByLocation(query)
-    setStations(results)
-  }
+  const { stations, isLoading, searchByLocation } = useStations()
 
   return (
     <div className="min-h-screen font-sans">
       <Header />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={searchByLocation} isLoading={isLoading} />
 
-        {/* Affichage provisoire : les cartes de stations arrivent à l'étape 3 */}
-        <ul className="mt-6 space-y-1 text-sm text-slate-700">
-          {stations.map((station) => (
-            <li key={station.id}>
-              {station.address}, {station.postalCode} {station.city} : gazole{' '}
-              {station.prices.gazole ?? '—'} €
-            </li>
-          ))}
-        </ul>
+        {stations.length > 0 && <StationList stations={stations} />}
       </main>
 
       <footer className="py-6 text-center text-xs text-slate-500">

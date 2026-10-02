@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function SearchBar({ onSearch }) {
+function SearchBar({ onSearch, isLoading }) {
   // Texte en cours de saisie : seul ce composant en a besoin
   const [query, setQuery] = useState('')
 
@@ -26,9 +26,10 @@ function SearchBar({ onSearch }) {
       />
       <button
         type="submit"
-        className="rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+        disabled={isLoading}
+        className="rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-wait disabled:opacity-60"
       >
-        Rechercher
+        {isLoading ? 'Recherche…' : 'Rechercher'}
       </button>
     </form>
   )
