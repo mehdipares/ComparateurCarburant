@@ -1,19 +1,24 @@
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
-import StationList from './components/StationList'
+import SearchResults from './components/SearchResults'
 import useStations from './hooks/useStations'
 
 function App() {
-  const { stations, isLoading, searchByLocation } = useStations()
+  const { stations, status, lastQuery, searchByLocation, retry } = useStations()
 
   return (
     <div className="min-h-screen font-sans">
       <Header />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <SearchBar onSearch={searchByLocation} isLoading={isLoading} />
+        <SearchBar onSearch={searchByLocation} isLoading={status === 'loading'} />
 
-        {stations.length > 0 && <StationList stations={stations} />}
+        <SearchResults
+          status={status}
+          stations={stations}
+          lastQuery={lastQuery}
+          onRetry={retry}
+        />
       </main>
 
       <footer className="py-6 text-center text-xs text-slate-500">

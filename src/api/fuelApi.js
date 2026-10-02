@@ -6,6 +6,9 @@ const API_URL =
 // Maximum autorisé par l'API en une seule requête
 const MAX_RESULTS = 100
 
+// Au-delà de 10 secondes sans réponse, on abandonne la requête
+const TIMEOUT_MS = 10000
+
 // On ne demande que les colonnes utiles pour alléger la réponse
 const FIELDS = ['id', 'adresse', 'ville', 'cp', 'geom', ...FUELS.map((fuel) => `${fuel.id}_prix`)]
 
@@ -48,7 +51,9 @@ async function fetchStations(where) {
     limit: MAX_RESULTS,
   })
 
-  const response = await fetch(`${API_URL}?${params}`)
+  const response = await fetch(`${API_URL}?${params}`, {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  })
 
   // fetch ne lève pas d'erreur sur un code HTTP 4xx/5xx : on le vérifie nous-mêmes
   if (!response.ok) {

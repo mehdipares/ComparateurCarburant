@@ -1,20 +1,37 @@
 import { useState } from 'react'
 import { searchStationsByLocation } from '../api/fuelApi'
 
-// Regroupe tout ce qui concerne le chargement des stations :
-// les données, l'état de chargement et la fonction de recherche.
+// Regroupe tout ce qui concerne le chargement des stations.
+// `status` décrit où en est la recherche :
+//   'idle'    → aucune recherche lancée
+//   'loading' → requête en cours
+//   'success' → résultats reçus (la liste peut être vide)
+//   'error'   → la requête a échoué
 function useStations() {
   const [stations, setStations] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState('idle')
+  const [lastQuery, setLastQuery] = useState('')
 
   async function searchByLocation(query) {
-    setIsLoading(true)
-    const results = await searchStationsByLocation(query)
-    setStations(results)
-    setIsLoading(false)
+    setLastQuery(query)
+    setStatus('loading')
+
+    try {
+      const results = await searchStationsByLocation(query)
+      setStations(results)
+      setStatus('success')
+    } catch (error) {
+      console.error(error) // Utile pour le débogage, invisible pour l'utilisateur
+      setStations([])
+      setStatus('error')
+    }
   }
 
-  return { stations, isLoading, searchByLocation }
+  function retry() {
+    searchByLocation(lastQuery)
+  }
+
+  return { stations, status, lastQuery, searchByLocation, retry }
 }
 
 export default useStations
