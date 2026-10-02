@@ -67,8 +67,25 @@ async function fetchStations(where, orderBy) {
   return data.results.map(formatStation)
 }
 
-export function searchStationsByLocation(query) {
-  return fetchStations(buildLocationFilter(query))
+// Met un nom de ville sous une forme comparable : "Saint-Étienne" → "saint etienne"
+function normalizeCityName(name) {
+  return name
+    .normalize('NFD') // Sépare les lettres de leurs accents : "é" → "e" + "´"
+    .replace(/[̀-ͯ]/g, '') // Supprime les accents
+    .replace(/[-']/g, ' ')
+    .toLowerCase()
+    .trim()
+}
+
+export async function searchStationsByLocation(query) {
+  const stations = await fetchStations(buildLocationFilter(query))
+
+  // `like "Lyon"` renvoie aussi "Chazelles-sur-Lyon". Si des stations correspondent
+  // exactement à la ville tapée, on ne garde qu'elles ; sinon on garde tout.
+  const exactMatches = stations.filter(
+    (station) => normalizeCityName(station.city ?? '') === normalizeCityName(query),
+  )
+  return exactMatches.length > 0 ? exactMatches : stations
 }
 
 // Stations dans un rayon autour d'un point, les plus proches en premier.
