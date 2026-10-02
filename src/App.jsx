@@ -21,6 +21,7 @@ function App() {
   } = useStations()
   const [selectedFuel, setSelectedFuel] = useSelectedFuel()
   const [sortBy, setSortBy] = useState('price') // 'price' | 'distance'
+  const [view, setView] = useState('list') // 'list' | 'map'
 
   // Donnée dérivée : filtrée et triée sans nouvel appel à l'API.
   // useMemo ne refait le calcul que si l'une des dépendances change.
@@ -29,9 +30,10 @@ function App() {
     [stations, selectedFuel, sortBy, userPosition],
   )
 
-  // Quand l'utilisateur cherche autour de lui, le tri par distance est le plus logique
+  // Quand l'utilisateur cherche autour de lui, on trie par distance et on ouvre la carte
   function handleLocate() {
     setSortBy('distance')
+    setView('map')
     searchAroundMe()
   }
 
@@ -65,6 +67,8 @@ function App() {
           userPosition={userPosition}
           onRetry={retry}
           onLocate={handleLocate}
+          view={view}
+          onViewChange={setView}
         />
       </main>
 

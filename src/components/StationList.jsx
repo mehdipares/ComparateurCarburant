@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense } from 'react'
 import StationCard from './StationCard'
 
 // La carte (et la bibliothèque Leaflet) n'est téléchargée que lorsqu'elle s'affiche
@@ -9,9 +9,8 @@ const VIEWS = [
   { id: 'map', label: 'Carte' },
 ]
 
-function StationList({ stations, selectedFuel, userPosition }) {
-  const [view, setView] = useState('list') // 'list' ou 'map'
-
+// `view` ('list' ou 'map') est géré par App, pour pouvoir ouvrir la carte depuis ailleurs
+function StationList({ stations, selectedFuel, userPosition, view, onViewChange }) {
   // Prix le plus bas parmi les stations affichées, pour le badge "Le moins cher"
   const cheapestPrice = Math.min(...stations.map((station) => station.prices[selectedFuel]))
 
@@ -28,7 +27,7 @@ function StationList({ stations, selectedFuel, userPosition }) {
               key={option.id}
               type="button"
               aria-pressed={view === option.id}
-              onClick={() => setView(option.id)}
+              onClick={() => onViewChange(option.id)}
               className={`rounded-full px-4 py-1 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 ${
                 view === option.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
               }`}

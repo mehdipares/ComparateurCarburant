@@ -39,6 +39,8 @@ function SearchResults({
   userPosition,
   onRetry,
   onLocate,
+  view,
+  onViewChange,
 }) {
   if (status === 'idle') {
     return (
@@ -116,7 +118,13 @@ function SearchResults({
   }
 
   return (
-    <StationList stations={visibleStations} selectedFuel={selectedFuel} userPosition={userPosition} />
+    <StationList
+      stations={visibleStations}
+      selectedFuel={selectedFuel}
+      userPosition={userPosition}
+      view={view}
+      onViewChange={onViewChange}
+    />
   )
 }
 
